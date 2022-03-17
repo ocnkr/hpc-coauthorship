@@ -1,3 +1,5 @@
 *.dtd
 *.xml
 *.gz
+example-parser/
+__pycache__
