@@ -1,15 +1,17 @@
-from neomodel import (
-    StructuredRel,
-    StringProperty,
-    IntegerProperty,
-    ArrayProperty,
-)
+from neomodel import StructuredNode, StringProperty, IntegerProperty, RelationshipTo
+
+from .published import PublishedRel
+from .venue import Venue
 
 
-class PaperRel(StructuredRel):
+class Paper(StructuredNode):
+    id = StringProperty(required=True)
     key = StringProperty(required=True)
-    title = StringProperty(required=True)
-    author_pids = ArrayProperty(StringProperty())
-    author_names = ArrayProperty(StringProperty())
-    year = IntegerProperty()
+    name = StringProperty(required=True)
+    type = StringProperty()
     url = StringProperty()
+    ee = StringProperty()
+    num_of_authors = IntegerProperty()
+    year = IntegerProperty()
+
+    venue = RelationshipTo("Venue", "PUBLISHED AT", model=PublishedRel)

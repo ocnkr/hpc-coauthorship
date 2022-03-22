@@ -1,9 +1,7 @@
 from neomodel import (
     StructuredNode,
-    UniqueIdProperty,
     StringProperty,
     IntegerProperty,
-    ArrayProperty,
 )
 
 
@@ -13,5 +11,4 @@ class Venue(StructuredNode):
     name = StringProperty(required=True)
     type = StringProperty(choices=VENUE_TYPES)
     avg_citation_per_paper = IntegerProperty()
-    urls = ArrayProperty(StringProperty())
-    h_index = ArrayProperty(StringProperty())
+    h_index = IntegerProperty()

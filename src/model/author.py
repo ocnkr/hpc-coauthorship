@@ -1,15 +1,17 @@
-from enum import unique
 from neomodel import (
     StructuredNode,
-    UniqueIdProperty,
     StringProperty,
     IntegerProperty,
     ArrayProperty,
     Relationship,
+    RelationshipTo,
 )
 
-from .paper import PaperRel
+from .coauthorship import CoauthorRel
+from .attended import AttendedRel
+from .contributed import ContributedRel
 from .venue import Venue
+from .paper import Paper
 
 
 class Author(StructuredNode):
@@ -22,5 +24,6 @@ class Author(StructuredNode):
     affiliations = ArrayProperty(StringProperty())
     awards = ArrayProperty(StringProperty())
 
-    coauthor = Relationship("Author", "COAUTHOR", model=PaperRel)
-    venue = Relationship("Venue", "PUBLISHED AT", model=PaperRel)
+    coauthor = Relationship("Author", "COAUTHORED WITH", model=CoauthorRel)
+    venue = RelationshipTo("Venue", "ATTENDED TO", model=AttendedRel)
+    paper = RelationshipTo("Paper", "CONTRIBUTED TO", model=ContributedRel)
