@@ -29,14 +29,19 @@ def collect_from_venues(data):
                     "year": paper["info"]["year"],
                 }
             )[0]
+            # connect the paper to venue
             paper_node.venue.connect(venue_node, {"year": paper["info"]["year"]})
             if "authors" not in paper["info"]:
                 continue
+            # get the author information for the paper
             authors = paper["info"]["authors"]["author"]
+            # some author information is not stored as a list
             if not isinstance(authors, list):
                 authors = [authors]
+            # store the number of authors of a paper
             paper_node.num_of_authors = len(authors)
             paper_node.save()
+            # iterate over authors
             for i in range(len(authors)):
                 pid = authors[i]["@pid"]
                 name = authors[i]["text"]
@@ -45,12 +50,15 @@ def collect_from_venues(data):
                 # connect author and venue
                 author1_node.paper.connect(paper_node, {"contribution": i + 1})
                 if len(authors) > i + 1:
+                    # TODO: no need to this for loop
                     for j in range(i + 1, len(authors)):
                         pid = authors[j]["@pid"]
                         name = authors[j]["text"]
+                        # create the other author
                         author2_node = Author.get_or_create({"pid": pid, "name": name})[
                             0
                         ]
+                        # connect that author to the paper
                         author2_node.paper.connect(paper_node, {"contribution": j + 1})
 
     file = open(data, "r")
@@ -60,6 +68,7 @@ def collect_from_venues(data):
         venue_name = venue_info[0]
         venue_type = venue_info[1]
         venue_link = venue_info[3]
+        # skip the conferences that are not directly HPC related
         if venue_type == "RC":
             continue
 
@@ -67,9 +76,10 @@ def collect_from_venues(data):
         venue_node = Venue.get_or_create(
             {"key": venue_key, "name": venue_name, "type": venue_type}
         )[0]
-        # gets the first 1000 papers
+        # sleep between 1-2 seconds not to get recaptcha
         sleep(randint(60, 120))
         print("{} is started".format(venue_link + "&format=json"))
+        # gets the first 1000 papers
         venue_dict = requests.get(venue_link + "&format=json").json()
         total_papers = int(venue_dict["result"]["hits"]["@total"])
         computed = int(venue_dict["result"]["hits"]["@computed"])
@@ -105,42 +115,6 @@ def main():
     config.DATABASE_URL = "bolt://neo4j:1234@localhost:7687"
 
     collect_from_venues("data\conferences.csv")
-
-    # sleep(randint(60, 120))
-    # for i in range(total_papers // 1000):
-    #     req_string = "https://dblp.uni-trier.de/search/publ/api?q=stream%3Astreams%2Fconf%2Fics%3A&h=1000&f={}&format=json".format(
-    #         (i + 1) * 1000
-    #     )
-    #     print(req_string)
-    #     req = requests.get(req_string)
-    #     venue_dict = json.loads(req.text)
-    #     total_papers = int(venue_dict["result"]["hits"]["@total"])
-    #     computed = int(venue_dict["result"]["hits"]["@computed"])
-    #     sent = int(venue_dict["result"]["hits"]["@sent"])
-    #     first = int(venue_dict["result"]["hits"]["@first"])
-    #     print(total_papers, computed, sent, first)
-    # for paper in venue_dict["result"]["hits"]["hit"]:
-    #     # create paper link
-    #     for i in range(len(paper["info"]["authors"]["author"])):
-    #         # author1 = Author.get_or_create()
-    #         for j in range(i+1, len(paper["info"]["authors"]["author"])):
-    #             # author2 = Author.get_or_create()
-    #             # author1.coauthor.connect(author2, {"key": "paperkey", "title": "papertitle"})
-
-    # author1 = Author.get_or_create({"pid": "2", "name": "author1"})
-    # author2 = Author.get_or_create({"pid": "2", "name": "author1"})
-    # venue1 = Venue(name="venue1").save()
-    # author3 = Author.nodes.get(pid="2")
-    # print(author1 == author2)
-    # author2 = Author.nodes.get(name="author2")
-    # venue1 = Venue.nodes.get(name="venue1")
-    # author1.coauthor.connect(author2, {"key": "paperkey", "title": "papertitle"})
-    # author1.venue.connect(venue1, {"key": "paperkey", "title": "papertitle"})
-    # author2.venue.connect(venue1, {"key": "paperkey", "title": "papertitle"})
-    # for nodes in Author.nodes.all():
-    #     nodes.delete()
-    # for nodes in Venue.nodes.all():
-    #     nodes.delete()
     return
 
 
