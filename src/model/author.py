@@ -27,3 +27,11 @@ class Author(StructuredNode):
     coauthor = Relationship("Author", "COAUTHORED WITH", model=CoauthorRel)
     venue = RelationshipTo("Venue", "ATTENDED TO", model=AttendedRel)
     paper = RelationshipTo("Paper", "CONTRIBUTED TO", model=ContributedRel)
+
+    def asdict(self):
+        return {
+            "pid": self.pid,
+            "name": self.name,
+            "number_of_papers": self.number_of_papers,
+            "number_of_coauthors": self.number_of_coauthors,
+        }
